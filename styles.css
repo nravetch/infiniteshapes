@@ -1,0 +1,90 @@
+/* styles.css */
+/* Overall styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden; /* Prevent default body scrollbar */
+  }
+  .container {
+    display: flex;
+    height: 100vh;
+  }
+  /* Main content styles */
+  .main-content {
+    flex: 5; /* Main content takes up 5/6 of the screen */
+    background-color: #333; /* Change main content color as needed */
+  }
+  /* Sidebar styles */
+  .sidebar {
+    flex: 1; /* Sidebar takes up 1/6 of the screen */
+    overflow-y: auto; /* Enable vertical scrolling if needed */
+    background-color: #eee; /* Change sidebar color as needed */
+    display: flex;
+    flex-direction: column;
+  }
+  /* Section heading styles */
+  .section-heading {
+    font-weight: bold;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  /* Divider between sections */
+  .divider {
+    height: 1px;
+    background-color: #ccc;
+    margin: 10px 0;
+  }
+  /* Grid item styles */
+  .grid-item {
+    padding: 10px;
+    border-bottom: 1px solid #ccc; /* Add borders between grid items */
+    cursor: pointer; /* Show pointer cursor on hover */
+  }
+  Hover effect for grid items
+  .grid-item:hover {
+    background-color: #f0f0f0; /* Change background color on hover */
+  }
+  /* Adjust styles for sections */
+  .color-items,
+  .shape-items {
+    flex-grow: 1; /* Each section takes equal space */
+    overflow-y: auto; /* Enable vertical scrolling if needed */
+  }
+  /* Updated grid item styles for colors */
+  .color-items .grid-item {
+    padding: 10px;
+    border-bottom: 1px solid #ccc; /* Add borders between grid items */
+    cursor: pointer; /* Show pointer cursor on hover */
+  }
+  
+  /* Selected color style */
+  .color-selected {
+    background-color: lightblue !important; /* Change the background color for selected color */
+  }
+  
+  /* Hover effect for unselected grid items */
+  .color-items .grid-item:not(.color-selected):hover {
+    background-color: inherit; /* Change background color on hover for unselected items */
+  }
+  
+  .small-shape {
+    width: 50px;
+    height: 50px;
+    position: absolute; /* Position as absolute for dragging */
+    cursor: pointer; /* Show move cursor on draggable shapes */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+  }
+
+  /* Shape-specific styles */
+  .small-shape.square {
+    border-radius: 0;
+  }
+
+  .small-shape.circle {
+    border-radius: 50%;
+  }
