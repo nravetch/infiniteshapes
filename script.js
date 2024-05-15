@@ -116,29 +116,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Calculate combined position and size
         const rect1 = shape1.getBoundingClientRect();
         const rect2 = shape2.getBoundingClientRect();
-        const combinedLeft = Math.min(rect1.left, rect2.left);
-        const combinedTop = Math.min(rect1.top, rect2.top);
-        const combinedWidth = Math.max(rect1.right, rect2.right) - combinedLeft;
-        const combinedHeight = Math.max(rect1.bottom, rect2.bottom) - combinedTop;
+        const combinedLeft = (rect1.left +  rect2.left) / 2;
+        const combinedTop = (rect1.top + rect2.top) / 2;
+        console.log(rect1.left)
+        console.log(rect2.left)
+        console.log(combinedLeft)
+        // const combinedWidth = Math.max(rect1.right, rect2.right) - combinedLeft;
+        // const combinedHeight = Math.max(rect1.bottom, rect2.bottom) - combinedTop;
 
-        // Create a new white circle shape
-        const combinedShape = document.createElement('div');
-        combinedShape.classList.add('small-shape');
-        combinedShape.classList.add('circle');
-        combinedShape.style.left = `${combinedLeft}px`;
-        combinedShape.style.top = `${combinedTop}px`;
-        combinedShape.style.width = `${combinedWidth}px`;
-        combinedShape.style.height = `${combinedHeight}px`;
-        combinedShape.style.backgroundColor = 'white'; // Set background color to white
+        // combinedShape.style.left = `${combinedLeft}px`;
+        // combinedShape.style.top = `${combinedTop}px`;
+
 
         // Remove the original shapes
         shape1.remove();
         shape2.remove();
-        document.body.appendChild(combinedShape);
-        // ^ change to call createShape
+        newShape = createShape("white-circle")
+        console.log(newShape.style.left)
+        newShape.style.left = `${combinedLeft}px`;
+        newShape.style.top = `${combinedTop}px`;
+        console.log(newShape.style.left)
       }
       document.body.appendChild(smallShape);
+      return smallShape
     }
     
 });
-  

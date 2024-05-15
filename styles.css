@@ -88,3 +88,7 @@ body, html {
   .small-shape.circle {
     border-radius: 50%;
   }
+
+  .small-shape.white-circle {
+    background-color: rgb(255, 255, 255);
+  }
