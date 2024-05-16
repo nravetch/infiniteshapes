@@ -1,5 +1,19 @@
 // script.js
 const colorItems = document.querySelector('.color-items');
+var selectedColor = "black";
+
+const existingColors = new Set([
+  "rgb(255, 0, 0)",
+  "rgb(255, 255, 0)",
+  "rgb(0, 0, 255)",
+  "rgb(255, 255, 255)",
+  "rgb(0, 0, 0)"
+]);
+
+function colorExists(color) {
+  return existingColors.has(color);
+}
+
 
 colorItems.addEventListener('click', (event) => {
   const targetItem = event.target.closest('.grid-item');
@@ -14,7 +28,7 @@ colorItems.addEventListener('click', (event) => {
   targetItem.classList.add('color-selected');
 
   // Example: Get the selected color
-  const selectedColor = targetItem.getAttribute('data-color');
+  selectedColor = targetItem.getAttribute('data-color');
   console.log(`Selected color: ${selectedColor}`);
 });
 
@@ -32,6 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const smallShape = document.createElement('div');
       smallShape.classList.add('small-shape');
       smallShape.classList.add(shapeType); // Add a class for the specific shape
+
+      smallShape.style.backgroundColor = selectedColor;
     
       // Calculate random coordinates near the center of the main content area
       const mainContent = document.querySelector('.main-content');
@@ -111,34 +127,50 @@ document.addEventListener('DOMContentLoaded', function() {
         );
       }
 
-      // Function to combine two shapes into a white circle
       function combineShapes(shape1, shape2) {
-        // Calculate combined position and size
         const rect1 = shape1.getBoundingClientRect();
         const rect2 = shape2.getBoundingClientRect();
-        const combinedLeft = (rect1.left +  rect2.left) / 2;
+        const combinedLeft = (rect1.left + rect2.left) / 2;
         const combinedTop = (rect1.top + rect2.top) / 2;
-        console.log(rect1.left)
-        console.log(rect2.left)
-        console.log(combinedLeft)
-        // const combinedWidth = Math.max(rect1.right, rect2.right) - combinedLeft;
-        // const combinedHeight = Math.max(rect1.bottom, rect2.bottom) - combinedTop;
-
-        // combinedShape.style.left = `${combinedLeft}px`;
-        // combinedShape.style.top = `${combinedTop}px`;
-
-
-        // Remove the original shapes
-        shape1.remove();
-        shape2.remove();
-        newShape = createShape("white-circle")
-        console.log(newShape.style.left)
+      
+        const color1 = getComputedStyle(shape1).backgroundColor;
+        const color2 = getComputedStyle(shape2).backgroundColor;
+    
+        const rgbToArray = (color) => color.match(/\d+/g).map(Number);
+        const rgb1 = rgbToArray(color1);
+        const rgb2 = rgbToArray(color2);
+      
+        const avgRgb = rgb1.map((value, index) => Math.round((value + rgb2[index]) / 2));
+        const newColor = `rgb(${avgRgb.join(',')})`
+      
+        shape1.remove()
+        shape2.remove()
+        const newShape = createShape("circle");
+        newShape.style.backgroundColor = newColor;
         newShape.style.left = `${combinedLeft}px`;
         newShape.style.top = `${combinedTop}px`;
-        console.log(newShape.style.left)
+
+        console.log(newShape.style.backgroundColor)
+
+        if (!colorExists(newColor)) {
+          existingColors.add(newColor);
+          const newColorItem = document.createElement('div');
+          newColorItem.setAttribute("class", "grid-item")
+          newColorItem.setAttribute("data-color", newColor);
+          newColorItem.textContent = `New Color ${existingColors.size - 5}`;
+          newColorItem.addEventListener('click', (event) => {
+            selectedColor = newColor; // Set selected color to the combined color
+            console.log(`Selected color: ${selectedColor}`);
+          });
+      
+          colorItems.appendChild(newColorItem); // Add new color item to the color items container
+        }
       }
+      
       document.body.appendChild(smallShape);
       return smallShape
     }
     
 });
+
+//TODO: Make sidebar work with vertical alignment and scrolling

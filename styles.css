@@ -76,7 +76,6 @@ body, html {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 50%;
   }
 
@@ -87,8 +86,4 @@ body, html {
 
   .small-shape.circle {
     border-radius: 50%;
-  }
-
-  .small-shape.white-circle {
-    background-color: rgb(255, 255, 255);
   }
