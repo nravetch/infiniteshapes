@@ -1,6 +1,14 @@
 // script.js
 const colorItems = document.querySelector('.color-items');
+const checkmarks = document.querySelectorAll('.checkmark');
 var selectedColor = "black";
+
+colorItems.querySelectorAll('.grid-item').forEach(item => {
+  const color = item.getAttribute('data-color');
+  const textColor = getInverseColor(color);
+  item.style.color = textColor;
+  item.style.backgroundColor = color;
+});
 
 const existingColors = new Set([
   "rgb(255, 0, 0)",
@@ -14,6 +22,19 @@ function colorExists(color) {
   return existingColors.has(color);
 }
 
+function getInverseColor(color) {
+  // Convert RGB string to an array of RGB values
+  const rgbValues = color.match(/\d+/g).map(Number);
+
+  // Calculate the inverse RGB values
+  const inverseRgbValues = rgbValues.map(value => 255 - value);
+
+  // Convert the inverse RGB values back to an RGB string
+  const inverseColor = `rgb(${inverseRgbValues.join(',')})`;
+
+  return inverseColor;
+}
+
 
 colorItems.addEventListener('click', (event) => {
   const targetItem = event.target.closest('.grid-item');
@@ -21,14 +42,23 @@ colorItems.addEventListener('click', (event) => {
 
   // Remove previous selection
   colorItems.querySelectorAll('.grid-item').forEach(item => {
-    item.classList.remove('color-selected');
+      item.classList.remove('color-selected');
+  });
+
+  // Hide all checkmarks
+  checkmarks.forEach(checkmark => {
+      checkmark.style.display = 'none';
   });
 
   // Add selected class to the clicked item
   targetItem.classList.add('color-selected');
 
+  // Show the checkmark for the clicked item
+  targetItem.querySelector('.checkmark').style.display = 'inline';
+
   // Example: Get the selected color
-  selectedColor = targetItem.getAttribute('data-color');
+  const color = targetItem.getAttribute('data-color');
+  selectedColor = color;
   console.log(`Selected color: ${selectedColor}`);
 });
 
@@ -158,10 +188,17 @@ document.addEventListener('DOMContentLoaded', function() {
           newColorItem.setAttribute("class", "grid-item")
           newColorItem.setAttribute("data-color", newColor);
           newColorItem.textContent = `New Color ${existingColors.size - 5}`;
+          newColorItem.style.backgroundColor = newColor;
+          newColorItem.style.color = getInverseColor(newColor);
           newColorItem.addEventListener('click', (event) => {
             selectedColor = newColor; // Set selected color to the combined color
             console.log(`Selected color: ${selectedColor}`);
           });
+
+          const newCheckmark = document.createElement('span');
+          newCheckmark.className = 'checkmark';
+          newCheckmark.textContent = '\u2713'; // Unicode checkmark symbol
+          newColorItem.appendChild(newCheckmark);
       
           colorItems.appendChild(newColorItem); // Add new color item to the color items container
         }
@@ -173,4 +210,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
-//TODO: Make sidebar work with vertical alignment and scrolling
+//TODO: Remove checkmarks of new created colors

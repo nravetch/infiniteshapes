@@ -52,14 +52,11 @@ body, html {
   cursor: pointer; /* Show pointer cursor on hover */
 }
 
-/* Hover effect for grid items */
-.grid-item:hover {
-  background-color: #f0f0f0; /* Change background color on hover */
-}
-
-/* Selected color style */
-.color-selected {
-  background-color: lightblue !important; /* Change the background color for selected color */
+/* Add CSS to style the checkmark */
+.checkmark {
+  display: none; /* Initially hide all checkmarks */
+  color: green; /* Change color of the checkmark as needed */
+  margin-left: 5px; /* Adjust spacing between color name and checkmark */
 }
 
 /* Hover effect for unselected grid items */
@@ -85,4 +82,29 @@ body, html {
 
 .small-shape.circle {
   border-radius: 50%;
+}
+
+.shape-btn {
+  display: flex; /* Use flexbox */
+  align-items: center; /* Vertically center items */
+  padding: 5px 10px; /* Add padding for better spacing */
+}
+
+/* Adjust the styles for the shape buttons */
+.shape-btn::after {
+  content: "";
+  display: inline-block;
+  width: 20px; /* Adjust the width as needed */
+  height: 20px; /* Adjust the height as needed */
+  background-color: black; /* Always black */
+  margin-left: 5px; /* Add space between text and shape */
+}
+
+.shape-btn.square::after {
+  border-top: 2px solid black; /* Create a square shape */
+  border-bottom: 2px solid black;
+}
+
+.shape-btn.circle::after {
+  border-radius: 50%; /* Create a circle shape */
 }
