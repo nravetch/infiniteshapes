@@ -14,6 +14,7 @@ body, html {
 .main-content {
   flex: 5; /* Main content takes up 5/6 of the screen */
   background-color: #333; /* Change main content color as needed */
+  position: relative; /* For positioning shapes */
 }
 
 /* Sidebar styles */
@@ -64,47 +65,9 @@ body, html {
   background-color: inherit; /* Change background color on hover for unselected items */
 }
 
-.small-shape {
-  width: 50px;
-  height: 50px;
-  position: absolute; /* Position as absolute for dragging */
-  cursor: pointer; /* Show move cursor on draggable shapes */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-}
-
-/* Shape-specific styles */
-.small-shape.square {
-  border-radius: 0;
-}
-
-.small-shape.circle {
-  border-radius: 50%;
-}
-
 .shape-btn {
-  display: flex; /* Use flexbox */
-  align-items: center; /* Vertically center items */
-  padding: 5px 10px; /* Add padding for better spacing */
-}
-
-/* Adjust the styles for the shape buttons */
-.shape-btn::after {
-  content: "";
-  display: inline-block;
-  width: 20px; /* Adjust the width as needed */
-  height: 20px; /* Adjust the height as needed */
-  background-color: black; /* Always black */
-  margin-left: 5px; /* Add space between text and shape */
-}
-
-.shape-btn.square::after {
-  border-top: 2px solid black; /* Create a square shape */
-  border-bottom: 2px solid black;
-}
-
-.shape-btn.circle::after {
-  border-radius: 50%; /* Create a circle shape */
+  display: block;
+  padding: 10px;
+  margin: 5px 0;
+  cursor: pointer;
 }
