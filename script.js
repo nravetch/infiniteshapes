@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
   })
 
 let shapesData = {};
+const combinedShapesCache = {};
 
 fetch('shapes.json')
   .then(response => {
@@ -106,20 +107,22 @@ fetch('shapes.json')
 
 
   function createShape (shapeType) {
-    const svgNS = 'http://www.w3.org/2000/svg'
-    const smallShape = document.createElementNS(svgNS, 'svg')
-    smallShape.setAttribute('width', '200')
-    smallShape.setAttribute('height', '250')
-    smallShape.classList.add('small-shape')
-    
-    // Element Specific Attributes
-    // pulling types from shape.json
-
     // complain if we're trying to create a shape without an applicable ID
     if (!shapesData[shapeType]) {
       console.error(`Shape type "${shapeType}" not found in shapesData`);
       return null;
     }
+
+    const svgNS = 'http://www.w3.org/2000/svg'
+    const smallShape = document.createElementNS(svgNS, 'svg')
+    smallShape.setAttribute('width', '200')
+    smallShape.setAttribute('height', '250')
+    smallShape.classList.add('small-shape')
+    // add in the shapeType (the ID, so we can reference it later)
+    smallShape.setAttribute('data-shape-type', shapeType);
+    
+    // Element Specific Attributes
+    // pulling types from shape.json
 
     // shapeInfo represents the shape whose ID is shapeType
     const shapeInfo = shapesData[shapeType];
@@ -229,10 +232,38 @@ fetch('shapes.json')
 
       shape1.remove()
       shape2.remove()
-      const newShape = createShape('circle')
-      newShape.firstChild.setAttribute('fill', newColor)
-      newShape.style.left = `${combinedLeft}px`
-      newShape.style.top = `${combinedTop}px`
+
+      // Create a unique key for the combination of shape1 and shape2
+      const shapeType1 = shape1.getAttribute('data-shape-type')
+      const shapeType2 = shape2.getAttribute('data-shape-type')
+      const combinedKey = `${shapeType1}-${shapeType2}`
+      
+      // check to see if a shape has been made using shape1 and shape2
+      // if so, use the cached result to create the new shape
+
+      // TODO: Read / Write to a cache instead of keeping in-memory
+
+      // Check if a shape has been made using shape1 and shape2 (using their unique IDs)
+      if (combinedShapesCache[combinedKey]) {
+        // If so, use the cached result to create the new shape
+        const cachedShapeType = combinedShapesCache[combinedKey]
+        const newShape = createShape(cachedShapeType)
+        newShape.firstChild.setAttribute('fill', newColor)
+        newShape.style.left = `${combinedLeft}px`
+        newShape.style.top = `${combinedTop}px`
+      } else {
+        // Log that shape product doesn't exist yet
+        console.log(`Shape combination ${combinedKey} does not exist yet.`)
+
+        // TODO: Integrate and Call LLM API to acquire new shape
+        // current placeholder
+        const newShape = createShape('circle')
+        newShape.firstChild.setAttribute('fill', newColor)
+        newShape.style.left = `${combinedLeft}px`
+        newShape.style.top = `${combinedTop}px`
+        // Store the new combination result in the cache
+        combinedShapesCache[combinedKey] = 'circle' // Replace 'circle' with the actual shape type
+      }
 
       if (!colorExists(newColor)) {
         existingColors.add(newColor)
