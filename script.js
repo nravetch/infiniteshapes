@@ -1,15 +1,190 @@
 // script.js
-document.addEventListener('DOMContentLoaded', function () {
-  var colorItems = document.querySelector('.color-items')
-  var checkmarks = document.querySelectorAll('.checkmark')
-  var selectedColor = 'black'
+const prompt = `
+Objective:
 
-  colorItems.querySelectorAll('.grid-item').forEach(item => {
-    const color = item.getAttribute('data-color')
-    const textColor = getInverseColor(color)
-    item.style.color = textColor
-    item.style.backgroundColor = color
-  })
+You are an AI tasked with creating new and unique SVG (Scalable Vector Graphics) shapes. You will be given two SVG shapes as input. Your goal is to analyze these shapes, identify their distinctive features, and combine elements from both to generate a novel SVG shape. The resulting shape should be creative, cohesive, and aesthetically pleasing.
+
+Input Description:
+
+You will receive two shape objects, each representing an SVG shape with specific properties. Each shape object will contain the following:
+
+1. shape1 and shape2: These are objects containing details of the first and second shapes respectively.
+
+2. Properties of Each Shape Object:
+   - element: A string indicating the SVG element type, which can be one of the following: 'rect', 'ellipse', 'polygon', 'path', or 'circle'.
+   - attributes: An object containing the necessary attributes for the specific SVG element type. The attributes include:
+     - rect:
+       - "x": The x-coordinate of the rectangle.
+       - "y": The y-coordinate of the rectangle.
+       - "width": The width of the rectangle.
+       - "height": The height of the rectangle.
+     - circle:
+       - "cx": The x-coordinate of the circle's center.
+       - "cy": The y-coordinate of the circle's center.
+       - "r": The radius of the circle.
+     - ellipse:
+       - "cx": The x-coordinate of the ellipse's center.
+       - "cy": The y-coordinate of the ellipse's center.
+       - "rx": The x-axis radius of the ellipse.
+       - "ry": The y-axis radius of the ellipse.
+     - polygon:
+       - "points": A string containing a list of points defining the polygon.
+     - path:
+       - "d": A string containing path data that defines the shape.
+
+Example Input:
+
+{
+  "shape1": {
+    "element": "rect",
+    "attributes": {
+      "x": "10",
+      "y": "10",
+      "width": "30",
+      "height": "30"
+    }
+  },
+  "shape2": {
+    "element": "circle",
+    "attributes": {
+      "cx": "25",
+      "cy": "75",
+      "r": "20"
+    }
+  }
+}
+
+Guidelines:
+
+Shape Analysis:
+
+- Identify Key Features:
+  - Examine the structure, curves, lines, and angles of each shape.
+  - Identify notable characteristics such as symmetry, complexity, and style (e.g., geometric, organic, abstract).
+
+Combination Strategy:
+
+- Fusion of Elements:
+  - Merge prominent features from both shapes. For example, you might combine the curves from one shape with the angular features of another.
+  - Ensure that the combination is seamless and the elements from both shapes integrate well.
+
+- Proportion and Balance:
+  - Maintain a sense of proportion and balance. The new shape should not appear disjointed or disproportionate.
+
+- Innovation:
+  - Introduce innovative elements inspired by the input shapes but not directly copied. Aim to create something new while still being influenced by the original shapes.
+
+Aesthetic Quality:
+
+- Creativity:
+  - Aim for a design that is visually interesting and appealing.
+
+- Consistency:
+  - Ensure that the new shape is consistent in style and theme with the input shapes.
+
+- Complexity:
+  - Adjust the complexity of the new shape to be appropriate for the intended use. It should neither be too simple nor overly intricate.
+
+Technical Specifications:
+
+- SVG Format:
+  - Output the new shape in SVG format, as shown below.
+
+- Attributes:
+  - Maintain proper use of SVG attributes such as path, fill, stroke, stroke-width, and others as needed.
+
+- Scalability:
+  - The resulting shape should be scalable without losing quality or detail.
+
+Output:
+
+Provide the SVG code for the new, novel shape that combines elements from both input shapes in JSON format.
+OUTPUT ONLY THE JSON REPRESENTATION AS DETAILED BELOW. DO NOT EXPLAIN THE OUTPUT.
+
+Use only the required attributes for the specific SVG element:
+
+{
+  "unique_identifier": {
+    "element": "(one of 'rect', 'ellipse', 'polygon', 'path', or 'circle')",
+    "attributes": {
+      "x": "(required for 'rect')",
+      "y": "(required for 'rect')",
+      "width": "(required for 'rect')",
+      "height": "(required for 'rect')",
+      "cx": "(required for 'circle' and 'ellipse')",
+      "cy": "(required for 'circle' and 'ellipse')",
+      "r": "(required for 'circle')",
+      "rx": "(required for 'ellipse')",
+      "ry": "(required for 'ellipse')",
+      "points": "(required for 'polygon') - should be numbers separated by commas that represent the points on the polygon",
+      "d": A string containing path data that defines the shape. Ensure the 'd' attribute follows the SVG path data specification, including commands like M (move to), L (line to), C (cubic Bézier curve), Q (quadratic Bézier curve), Z (close path), and others as necessary.
+
+    }
+  }
+}
+`;
+
+
+async function fetchAnswer(shape1, shape2) {
+    const url = 'http://localhost:11434/api/generate';
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    const shapeData = {
+        shape1: {
+            element: shape1.getAttribute('data-shape-type'),
+            attributes: extractAttributes(shape1.firstChild)
+        },
+        shape2: {
+            element: shape2.getAttribute('data-shape-type'),
+            attributes: extractAttributes(shape2.firstChild)
+        }
+    };
+    const data = {
+        model: 'phi3:mini',
+        prompt: prompt + "\nInput:\n" + JSON.stringify(shapeData, null, 2)
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+
+        const responseData = await response.text();
+        const lines = responseData.split('\n');
+        let answer = '';
+
+        lines.forEach(line => {
+            if (line.trim()) {
+                try {
+                    const lineJson = JSON.parse(line);
+                    if (lineJson.response) {
+                        answer += lineJson.response;
+                    }
+                } catch (e) {
+                    console.log('an error occurred rip')
+                }
+            }
+        });
+        console.log("RAW AI RESPONSE:")
+        console.log(answer)
+        return JSON.parse(answer);
+    } catch (error) {
+        console.error('Failed to get a response. Error:', error);
+        return null;
+    }
+}
+
+function extractAttributes(element) {
+    const attributes = {};
+    for (let i = 0; i < element.attributes.length; i++) {
+        const attr = element.attributes[i];
+        attributes[attr.name] = attr.value;
+    }
+    return attributes;
+}
 
 let shapesData = {};
 const combinedShapesCache = {};
@@ -36,6 +211,18 @@ fetch('shapes.json')
     }
     console.error('Error loading shapes.json:', error);
   });
+
+document.addEventListener('DOMContentLoaded', function () {
+  var colorItems = document.querySelector('.color-items')
+  var checkmarks = document.querySelectorAll('.checkmark')
+  var selectedColor = 'black'
+
+  colorItems.querySelectorAll('.grid-item').forEach(item => {
+    const color = item.getAttribute('data-color')
+    const textColor = getInverseColor(color)
+    item.style.color = textColor
+    item.style.backgroundColor = color
+  })
 
   const existingColors = new Set([
     'rgb(255, 0, 0)',
@@ -105,9 +292,94 @@ fetch('shapes.json')
     });
   });
 
+  async function combineShapes (shape1, shape2) {
+    const rect1 = shape1.getBoundingClientRect()
+    const rect2 = shape2.getBoundingClientRect()
+    const combinedLeft = (rect1.left + rect2.left) / 2
+    const combinedTop = (rect1.top + rect2.top) / 2
+
+    const color1 = getComputedStyle(shape1.firstChild).fill
+    const color2 = getComputedStyle(shape2.firstChild).fill
+
+    const rgbToArray = color => color.match(/\d+/g).map(Number)
+    const rgb1 = rgbToArray(color1)
+    const rgb2 = rgbToArray(color2)
+
+    const avgRgb = rgb1.map((value, index) =>
+      Math.round((value + rgb2[index]) / 2)
+    )
+    const newColor = `rgb(${avgRgb.join(',')})`
+
+    shape1.remove()
+    shape2.remove()
+
+    const shapeType1 = shape1.getAttribute('data-shape-type')
+    const shapeType2 = shape2.getAttribute('data-shape-type')
+    const combinedKey = `${shapeType1}-${shapeType2}`
+    
+    let uniqueIdentifier
+    if (combinedShapesCache[combinedKey]) {
+      uniqueIdentifier = combinedShapesCache[combinedKey]
+    } else {
+      console.log(`Shape combination ${combinedKey} does not exist yet.`)
+      const aiResponse = await fetchAnswer(shape1, shape2)
+      console.log("AI responded:")
+      console.log(aiResponse)
+      if (aiResponse) {
+          uniqueIdentifier = Object.keys(aiResponse)[0]
+          combinedShapesCache[combinedKey] = uniqueIdentifier
+          shapesData[uniqueIdentifier] = aiResponse[uniqueIdentifier]
+      } else {
+          console.error('Failed to create new shape.')
+          return;
+      }
+    }
+
+    const newShapeData = shapesData[uniqueIdentifier]
+    const newShape = createShapeFromData(newShapeData)
+    newShape.firstChild.setAttribute('fill', newColor)
+    newShape.style.left = `${combinedLeft}px`
+    newShape.style.top = `${combinedTop}px`
+
+    if (!colorExists(newColor)) {
+      existingColors.add(newColor)
+      const newColorItem = document.createElement('div')
+      newColorItem.setAttribute('class', 'grid-item')
+      newColorItem.setAttribute('data-color', newColor)
+      newColorItem.textContent = `New Color ${existingColors.size - 5}`
+      newColorItem.style.backgroundColor = newColor
+      newColorItem.style.color = getInverseColor(newColor)
+      newColorItem.addEventListener('click', event => {
+        selectedColor = newColor
+        console.log(`Selected color: ${selectedColor}`)
+      })
+
+      const newCheckmark = document.createElement('span')
+      newCheckmark.className = 'checkmark'
+      newCheckmark.textContent = '\u2713'
+      newColorItem.appendChild(newCheckmark)
+
+      colorItems.appendChild(newColorItem)
+
+      checkmarks = document.querySelectorAll('.checkmark')
+
+      const shapeItems = document.querySelector('.shape-items');
+
+      const newShapeButton = document.createElement('button');
+      newShapeButton.classList.add('shape-btn');
+      newShapeButton.dataset.shape = uniqueIdentifier;
+      newShapeButton.textContent = `New Shape ${existingColors.size - 5}`;
+
+      newShapeButton.addEventListener('click', () => {
+        const shapeType = newShapeButton.getAttribute('data-shape');
+        createShape(shapeType);
+      });
+
+      shapeItems.appendChild(newShapeButton);
+    }
+  }
 
   function createShape (shapeType) {
-    // complain if we're trying to create a shape without an applicable ID
     if (!shapesData[shapeType]) {
       console.error(`Shape type "${shapeType}" not found in shapesData`);
       return null;
@@ -118,70 +390,88 @@ fetch('shapes.json')
     smallShape.setAttribute('width', '200')
     smallShape.setAttribute('height', '250')
     smallShape.classList.add('small-shape')
-    // add in the shapeType (the ID, so we can reference it later)
     smallShape.setAttribute('data-shape-type', shapeType);
     
-    // Element Specific Attributes
-    // pulling types from shape.json
-
-    // shapeInfo represents the shape whose ID is shapeType
     const shapeInfo = shapesData[shapeType];
-
-    // create the initial SVG, abstracted
     const shapeElement = document.createElementNS(svgNS, shapeInfo.element);
 
-    // Set attributes for the shape (iterates through all attributes for a ShapeInfo's element)
     Object.keys(shapeInfo.attributes).forEach(attr => {
       shapeElement.setAttribute(attr, shapeInfo.attributes[attr]);
     });
 
-
-    
-    // Element Mutual Attributes
     shapeElement.setAttribute('fill', selectedColor)
     smallShape.appendChild(shapeElement)
     
-    const mainContent = document.querySelector('.main-content')
-    const mainRect = mainContent.getBoundingClientRect()
-    const centerX = mainRect.left + mainRect.width / 2
-    const centerY = mainRect.top + mainRect.height / 2
-    const maxDistance = 100
-    const randomX = centerX - maxDistance + Math.random() * (maxDistance * 2)
-    const randomY = centerY - maxDistance + Math.random() * (maxDistance * 2)
+    setPositionAndDrag(smallShape)
 
-    smallShape.style.position = 'absolute'
-    smallShape.style.left = `${randomX}px`
-    smallShape.style.top = `${randomY}px`
+    document.querySelector('.main-content').appendChild(smallShape)
+    return smallShape
+  }
 
-    let isDragging = false
-    let offsetX, offsetY
+  function createShapeFromData(shapeData) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const smallShape = document.createElementNS(svgNS, 'svg');
+    smallShape.setAttribute('width', '200');
+    smallShape.setAttribute('height', '250');
+    smallShape.classList.add('small-shape');
+    smallShape.setAttribute('data-shape-type', shapeData.element);
 
-    smallShape.addEventListener('mousedown', startDrag)
-    smallShape.addEventListener('mouseup', endDrag)
+    const shapeElement = document.createElementNS(svgNS, shapeData.element);
 
-    function startDrag (e) {
-      isDragging = true
-      offsetX = e.clientX - parseFloat(getComputedStyle(smallShape).left)
-      offsetY = e.clientY - parseFloat(getComputedStyle(smallShape).top)
-      window.addEventListener('mousemove', drag)
-      window.addEventListener('mouseup', endDrag)
+    for (const attr in shapeData.attributes) {
+        shapeElement.setAttribute(attr, shapeData.attributes[attr]);
     }
 
-    function drag (e) {
+    shapeElement.setAttribute('fill', selectedColor);
+    smallShape.appendChild(shapeElement);
+    document.querySelector('.main-content').appendChild(smallShape);
+
+    setPositionAndDrag(smallShape);
+    return smallShape;
+  }
+
+  function setPositionAndDrag(smallShape) {
+    const mainContent = document.querySelector('.main-content');
+    const mainRect = mainContent.getBoundingClientRect();
+    const centerX = mainRect.left + mainRect.width / 2;
+    const centerY = mainRect.top + mainRect.height / 2;
+    const maxDistance = 100;
+    const randomX = centerX - maxDistance + Math.random() * (maxDistance * 2);
+    const randomY = centerY - maxDistance + Math.random() * (maxDistance * 2);
+
+    smallShape.style.position = 'absolute';
+    smallShape.style.left = `${randomX}px`;
+    smallShape.style.top = `${randomY}px`;
+
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    smallShape.addEventListener('mousedown', startDrag);
+    smallShape.addEventListener('mouseup', endDrag);
+
+    function startDrag(e) {
+      isDragging = true;
+      offsetX = e.clientX - parseFloat(getComputedStyle(smallShape).left);
+      offsetY = e.clientY - parseFloat(getComputedStyle(smallShape).top);
+      window.addEventListener('mousemove', drag);
+      window.addEventListener('mouseup', endDrag);
+    }
+
+    function drag(e) {
       if (isDragging) {
-        const newX = e.clientX - offsetX
-        const newY = e.clientY - offsetY
-        smallShape.style.left = `${newX}px`
-        smallShape.style.top = `${newY}px`
+        const newX = e.clientX - offsetX;
+        const newY = e.clientY - offsetY;
+        smallShape.style.left = `${newX}px`;
+        smallShape.style.top = `${newY}px`;
       }
     }
 
-    function endDrag () {
-      isDragging = false
-      window.removeEventListener('mousemove', drag)
-      const mainContent = document.querySelector('.main-content')
-      const mainRect = mainContent.getBoundingClientRect()
-      const shapeRect = smallShape.getBoundingClientRect()
+    async function endDrag() {
+      isDragging = false;
+      window.removeEventListener('mousemove', drag);
+      const mainContent = document.querySelector('.main-content');
+      const mainRect = mainContent.getBoundingClientRect();
+      const shapeRect = smallShape.getBoundingClientRect();
 
       if (
         shapeRect.left < mainRect.left ||
@@ -189,126 +479,27 @@ fetch('shapes.json')
         shapeRect.top < mainRect.top ||
         shapeRect.bottom > mainRect.bottom
       ) {
-        smallShape.remove()
+        smallShape.remove();
       } else {
-        const shapes = document.querySelectorAll('.small-shape')
-        shapes.forEach(shape => {
+        const shapes = document.querySelectorAll('.small-shape');
+        for (const shape of shapes) {
           if (shape !== smallShape && isOverlapping(shape, smallShape)) {
-            combineShapes(shape, smallShape)
+            await combineShapes(shape, smallShape);
           }
-        })
+        }
       }
-      window.removeEventListener('mouseup', endDrag) // Ensure mouseup listener is removed
+      window.removeEventListener('mouseup', endDrag);
     }
 
-    function isOverlapping (shape1, shape2) {
-      const rect1 = shape1.getBoundingClientRect()
-      const rect2 = shape2.getBoundingClientRect()
+    function isOverlapping(shape1, shape2) {
+      const rect1 = shape1.getBoundingClientRect();
+      const rect2 = shape2.getBoundingClientRect();
       return !(
         rect1.right < rect2.left ||
         rect1.left > rect2.right ||
         rect1.bottom < rect2.top ||
         rect1.top > rect2.bottom
-      )
+      );
     }
-
-    function combineShapes (shape1, shape2) {
-      const rect1 = shape1.getBoundingClientRect()
-      const rect2 = shape2.getBoundingClientRect()
-      const combinedLeft = (rect1.left + rect2.left) / 2
-      const combinedTop = (rect1.top + rect2.top) / 2
-
-      const color1 = getComputedStyle(shape1.firstChild).fill
-      const color2 = getComputedStyle(shape2.firstChild).fill
-
-      const rgbToArray = color => color.match(/\d+/g).map(Number)
-      const rgb1 = rgbToArray(color1)
-      const rgb2 = rgbToArray(color2)
-
-      const avgRgb = rgb1.map((value, index) =>
-        Math.round((value + rgb2[index]) / 2)
-      )
-      const newColor = `rgb(${avgRgb.join(',')})`
-
-      shape1.remove()
-      shape2.remove()
-
-      // Create a unique key for the combination of shape1 and shape2
-      const shapeType1 = shape1.getAttribute('data-shape-type')
-      const shapeType2 = shape2.getAttribute('data-shape-type')
-      const combinedKey = `${shapeType1}-${shapeType2}`
-      
-      // check to see if a shape has been made using shape1 and shape2
-      // if so, use the cached result to create the new shape
-
-      // TODO: Read / Write to a cache instead of keeping in-memory
-
-      // Check if a shape has been made using shape1 and shape2 (using their unique IDs)
-      if (combinedShapesCache[combinedKey]) {
-        // If so, use the cached result to create the new shape
-        const cachedShapeType = combinedShapesCache[combinedKey]
-        const newShape = createShape(cachedShapeType)
-        newShape.firstChild.setAttribute('fill', newColor)
-        newShape.style.left = `${combinedLeft}px`
-        newShape.style.top = `${combinedTop}px`
-      } else {
-        // Log that shape product doesn't exist yet
-        console.log(`Shape combination ${combinedKey} does not exist yet.`)
-
-        // TODO: Integrate and Call LLM API to acquire new shape
-        // current placeholder
-        const newShape = createShape('circle')
-        newShape.firstChild.setAttribute('fill', newColor)
-        newShape.style.left = `${combinedLeft}px`
-        newShape.style.top = `${combinedTop}px`
-        // Store the new combination result in the cache
-        combinedShapesCache[combinedKey] = 'circle' // Replace 'circle' with the actual shape type
-      }
-
-      if (!colorExists(newColor)) {
-        existingColors.add(newColor)
-        const newColorItem = document.createElement('div')
-        newColorItem.setAttribute('class', 'grid-item')
-        newColorItem.setAttribute('data-color', newColor)
-        newColorItem.textContent = `New Color ${existingColors.size - 5}`
-        newColorItem.style.backgroundColor = newColor
-        newColorItem.style.color = getInverseColor(newColor)
-        newColorItem.addEventListener('click', event => {
-          selectedColor = newColor
-          console.log(`Selected color: ${selectedColor}`)
-        })
-
-        const newCheckmark = document.createElement('span')
-        newCheckmark.className = 'checkmark'
-        newCheckmark.textContent = '\u2713'
-        newColorItem.appendChild(newCheckmark)
-
-        colorItems.appendChild(newColorItem)
-
-        checkmarks = document.querySelectorAll('.checkmark')
-
-        // Get the container where the buttons will be appended
-        const shapeItems = document.querySelector('.shape-items');
-
-        // Started creation process for new shapes 
-        // Create a new button for the new shape
-        const newShapeButton = document.createElement('button');
-        newShapeButton.classList.add('shape-btn');
-        newShapeButton.dataset.shape = 'newShape'; // replace 'newShape' with the actual shape type
-        newShapeButton.textContent = `New Shape ${existingColors.size - 5}`; // replace the text content as needed
-
-        // Add an event listener to the new button
-        newShapeButton.addEventListener('click', () => {
-          const shapeType = newShapeButton.getAttribute('data-shape');
-          createShape(shapeType);
-        });
-
-        // Append the new button to the shape items
-        shapeItems.appendChild(newShapeButton);
-      }
-    }
-
-    document.querySelector('.main-content').appendChild(smallShape)
-    return smallShape
   }
-})
+});
