@@ -48,36 +48,81 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log(`Selected color: ${selectedColor}`)
   })
 
-  const shapeButtons = document.querySelectorAll('.shape-btn')
+
+  // Original Shapes
+  const shapes = [
+    { shape: 'square', label: 'Square' },
+    { shape: 'circle', label: 'Circle' },
+    { shape: 'ellipse', label: 'Ellipse' },
+    { shape: 'polygon', label: 'Star' },
+    { shape: 'polygon', label: 'Sine' }
+  ];
+
+  // Get the container where the buttons will be appended
+  const shapeItems = document.querySelector('.shape-items');
+
+  // Create and append the buttons
+  shapes.forEach(({ shape, label }) => {
+    const button = document.createElement('button');
+    button.classList.add('shape-btn');
+    button.dataset.shape = shape;
+    button.textContent = label;
+    shapeItems.appendChild(button);
+  });
+
+  // Add event listeners to the buttons
+  const shapeButtons = document.querySelectorAll('.shape-btn');
   shapeButtons.forEach(button => {
     button.addEventListener('click', () => {
-      const shapeType = button.getAttribute('data-shape')
-      createShape(shapeType)
-    })
-  })
+      const shapeType = button.getAttribute('data-shape');
+      createShape(shapeType);
+    });
+  });
+
 
   function createShape (shapeType) {
     const svgNS = 'http://www.w3.org/2000/svg'
     const smallShape = document.createElementNS(svgNS, 'svg')
-    smallShape.setAttribute('width', '50')
-    smallShape.setAttribute('height', '50')
+    smallShape.setAttribute('width', '200')
+    smallShape.setAttribute('height', '250')
     smallShape.classList.add('small-shape')
-
+    
+    // Element Specific Attributes
+    // Need to have shapeType poll from shapes.json
     let shapeElement
     if (shapeType === 'square') {
       shapeElement = document.createElementNS(svgNS, 'rect')
-      shapeElement.setAttribute('width', '50')
-      shapeElement.setAttribute('height', '50')
-    } else if (shapeType === 'circle') {
+      shapeElement.setAttribute('x', '10')
+      shapeElement.setAttribute('y', '10')
+      shapeElement.setAttribute('width', '30')
+      shapeElement.setAttribute('height', '30')
+    } 
+    else if (shapeType === 'circle') {
       shapeElement = document.createElementNS(svgNS, 'circle')
       shapeElement.setAttribute('cx', '25')
-      shapeElement.setAttribute('cy', '25')
-      shapeElement.setAttribute('r', '25')
+      shapeElement.setAttribute('cy', '75')
+      shapeElement.setAttribute('r', '20')
     }
-
+    else if (shapeType === 'ellipse') {
+      shapeElement = document.createElementNS(svgNS, 'ellipse')
+      shapeElement.setAttribute('cx', '75')
+      shapeElement.setAttribute('cy', '75')
+      shapeElement.setAttribute('rx', '20')
+      shapeElement.setAttribute('ry', '5')
+    }
+    else if (shapeType === 'polygon') {
+      shapeElement = document.createElementNS(svgNS, 'polygon')
+      shapeElement.setAttribute('points', '50 160 55 180 70 180 60 190 65 205 50 195 35 205 40 190 30 180 45 180')
+    } 
+    else if (shapeType === 'polygon') {
+      shapeElement = document.createElementNS(svgNS, 'path')
+      shapeElement.setAttribute('d', 'M 20 230 Q 40 205 50 230 T 90 230')
+    }
+    
+    // Element Mutual Attributes
     shapeElement.setAttribute('fill', selectedColor)
     smallShape.appendChild(shapeElement)
-
+    
     const mainContent = document.querySelector('.main-content')
     const mainRect = mainContent.getBoundingClientRect()
     const centerX = mainRect.left + mainRect.width / 2
@@ -195,6 +240,25 @@ document.addEventListener('DOMContentLoaded', function () {
         colorItems.appendChild(newColorItem)
 
         checkmarks = document.querySelectorAll('.checkmark')
+
+        // Get the container where the buttons will be appended
+        const shapeItems = document.querySelector('.shape-items');
+
+        // Started creation process for new shapes 
+        // Create a new button for the new shape
+        const newShapeButton = document.createElement('button');
+        newShapeButton.classList.add('shape-btn');
+        newShapeButton.dataset.shape = 'newShape'; // replace 'newShape' with the actual shape type
+        newShapeButton.textContent = `New Shape ${existingColors.size - 5}`; // replace the text content as needed
+
+        // Add an event listener to the new button
+        newShapeButton.addEventListener('click', () => {
+          const shapeType = newShapeButton.getAttribute('data-shape');
+          createShape(shapeType);
+        });
+
+        // Append the new button to the shape items
+        shapeItems.appendChild(newShapeButton);
       }
     }
 

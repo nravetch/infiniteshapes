@@ -1,0 +1,40 @@
+{
+  "square": {
+    "element": "rect",
+    "attributes": {
+      "x": "10",
+      "y": "10",
+      "width": "30",
+      "height": "30"
+    }
+  },
+  "circle": {
+    "element": "circle",
+    "attributes": {
+      "cx": "25",
+      "cy": "75",
+      "r": "20"
+    }
+  },
+  "ellipse": {
+    "element": "ellipse",
+    "attributes": {
+      "cx": "75",
+      "cy": "75",
+      "rx": "20",
+      "ry": "5"
+    }
+  },
+  "polygon": {
+    "element": "polygon",
+    "attributes": {
+      "points": "50 160 55 180 70 180 60 190 65 205 50 195 35 205 40 190 30 180 45 180"
+    }
+  },
+  "path": {
+    "element": "path",
+    "attributes": {
+      "d": "M 20 230 Q 40 205 50 230 T 90 230"
+    }
+  }
+}
