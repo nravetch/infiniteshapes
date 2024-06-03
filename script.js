@@ -11,6 +11,31 @@ document.addEventListener('DOMContentLoaded', function () {
     item.style.backgroundColor = color
   })
 
+let shapesData = {};
+
+fetch('shapes.json')
+  .then(response => {
+    console.log('Response:', response);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    shapesData = data;
+    console.log('Shapes data loaded successfully:', shapesData);
+  })
+  .catch(error => {
+    if (error instanceof SyntaxError) {
+      console.error('JSON Parse Error:', error.message);
+    } else if (error instanceof TypeError) {
+      console.error('Fetch Error:', error.message);
+    } else {
+      console.error('Unknown Error:', error.message);
+    }
+    console.error('Error loading shapes.json:', error);
+  });
+
   const existingColors = new Set([
     'rgb(255, 0, 0)',
     'rgb(255, 255, 0)',
@@ -88,36 +113,26 @@ document.addEventListener('DOMContentLoaded', function () {
     smallShape.classList.add('small-shape')
     
     // Element Specific Attributes
-    // Need to have shapeType poll from shapes.json
-    let shapeElement
-    if (shapeType === 'square') {
-      shapeElement = document.createElementNS(svgNS, 'rect')
-      shapeElement.setAttribute('x', '10')
-      shapeElement.setAttribute('y', '10')
-      shapeElement.setAttribute('width', '30')
-      shapeElement.setAttribute('height', '30')
-    } 
-    else if (shapeType === 'circle') {
-      shapeElement = document.createElementNS(svgNS, 'circle')
-      shapeElement.setAttribute('cx', '25')
-      shapeElement.setAttribute('cy', '75')
-      shapeElement.setAttribute('r', '20')
+    // pulling types from shape.json
+
+    // complain if we're trying to create a shape without an applicable ID
+    if (!shapesData[shapeType]) {
+      console.error(`Shape type "${shapeType}" not found in shapesData`);
+      return null;
     }
-    else if (shapeType === 'ellipse') {
-      shapeElement = document.createElementNS(svgNS, 'ellipse')
-      shapeElement.setAttribute('cx', '75')
-      shapeElement.setAttribute('cy', '75')
-      shapeElement.setAttribute('rx', '20')
-      shapeElement.setAttribute('ry', '5')
-    }
-    else if (shapeType === 'polygon') {
-      shapeElement = document.createElementNS(svgNS, 'polygon')
-      shapeElement.setAttribute('points', '50 160 55 180 70 180 60 190 65 205 50 195 35 205 40 190 30 180 45 180')
-    } 
-    else if (shapeType === 'polygon') {
-      shapeElement = document.createElementNS(svgNS, 'path')
-      shapeElement.setAttribute('d', 'M 20 230 Q 40 205 50 230 T 90 230')
-    }
+
+    // shapeInfo represents the shape whose ID is shapeType
+    const shapeInfo = shapesData[shapeType];
+
+    // create the initial SVG, abstracted
+    const shapeElement = document.createElementNS(svgNS, shapeInfo.element);
+
+    // Set attributes for the shape (iterates through all attributes for a ShapeInfo's element)
+    Object.keys(shapeInfo.attributes).forEach(attr => {
+      shapeElement.setAttribute(attr, shapeInfo.attributes[attr]);
+    });
+
+
     
     // Element Mutual Attributes
     shapeElement.setAttribute('fill', selectedColor)

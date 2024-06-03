@@ -18,7 +18,7 @@ print('Original data:')
 print(shapes)
 
 # Modify the data (this is just an example, modify as needed)
-shapes['square']['attributes']['width'] = '40'
+# shapes['square']['attributes']['width'] = '40'
 
 # Write the modified data back to the JSON file
 write_json(file_path, shapes)
