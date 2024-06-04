@@ -170,7 +170,11 @@ async function fetchAnswer(shape1, shape2) {
         });
         console.log("RAW AI RESPONSE:")
         console.log(answer)
-        return JSON.parse(answer);
+        //in case phi3 likes to elaborate, this should remove most issues
+        const extraExplanationMark = Math.max(0, answer.indexOf('=='));
+        const reducedAns = extraExplanationMark == 0 ? answer : answer.substring(0, extraExplanationMark);
+        const lastBrace = reducedAns.lastIndexOf('}');
+        return JSON.parse(reducedAns.substring(0,lastBrace+1));
     } catch (error) {
         console.error('Failed to get a response. Error:', error);
         return null;
@@ -184,6 +188,14 @@ function extractAttributes(element) {
         attributes[attr.name] = attr.value;
     }
     return attributes;
+}
+
+function nameFromCombinedKey(combinedKey) {
+  const [name1, name2] = combinedKey.split("-");
+  const half1 = Math.ceil(name1.length / 2);
+  const half2 = Math.floor(name2.length / 2);
+  const mixed = name1.slice(0, half1) + name2.slice(half2);
+  return mixed.charAt(0).toUpperCase() + mixed.slice(1);
 }
 
 let shapesData = {};
@@ -238,8 +250,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getInverseColor (color) {
     const rgbValues = color.match(/\d+/g).map(Number)
-    const inverseRgbValues = rgbValues.map(value => 255 - value)
-    return `rgb(${inverseRgbValues.join(',')})`
+    const [red, green, blue] = rgbValues;
+    return red*0.299 + green*0.587 + blue*0.114 > 148 ? "rgb(0,0,0)" : "rgb(255,255,255)";
   }
 
   colorItems.addEventListener('click', event => {
@@ -268,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function () {
     { shape: 'circle', label: 'Circle' },
     { shape: 'ellipse', label: 'Ellipse' },
     { shape: 'polygon', label: 'Star' },
-    { shape: 'polygon', label: 'Sine' }
+    { shape: 'path', label: 'Sine' }
   ];
 
   // Get the container where the buttons will be appended
@@ -369,6 +381,9 @@ document.addEventListener('DOMContentLoaded', function () {
       newShapeButton.classList.add('shape-btn');
       newShapeButton.dataset.shape = uniqueIdentifier;
       newShapeButton.textContent = `New Shape ${existingColors.size - 5}`;
+
+      //comment this out if its wack
+      newShapeButton.textContent = nameFromCombinedKey(combinedKey);
 
       newShapeButton.addEventListener('click', () => {
         const shapeType = newShapeButton.getAttribute('data-shape');
