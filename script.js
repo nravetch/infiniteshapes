@@ -104,7 +104,7 @@ OUTPUT ONLY THE JSON REPRESENTATION AS DETAILED BELOW. DO NOT EXPLAIN THE OUTPUT
 Use only the required attributes for the specific SVG element:
 
 {
-  "unique_identifier": {
+  "unique_identifier (replace this with a creative name that describes the new object": {
     "element": "(one of 'rect', 'ellipse', 'polygon', 'path', or 'circle')",
     "attributes": {
       "x": "(required for 'rect')",
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const newShapeData = shapesData[uniqueIdentifier]
-    const newShape = createShapeFromData(newShapeData)
+    const newShape = createShapeFromData(newShapeData, uniqueIdentifier)
     newShape.firstChild.setAttribute('fill', newColor)
     newShape.style.left = `${combinedLeft}px`
     newShape.style.top = `${combinedTop}px`
@@ -423,13 +423,13 @@ document.addEventListener('DOMContentLoaded', function () {
     return smallShape
   }
 
-  function createShapeFromData(shapeData) {
+  function createShapeFromData(shapeData, uniqueIdentifier) {
     const svgNS = 'http://www.w3.org/2000/svg';
     const smallShape = document.createElementNS(svgNS, 'svg');
     smallShape.setAttribute('width', '200');
     smallShape.setAttribute('height', '250');
     smallShape.classList.add('small-shape');
-    smallShape.setAttribute('data-shape-type', shapeData.element);
+    smallShape.setAttribute('data-shape-type', uniqueIdentifier);
 
     const shapeElement = document.createElementNS(svgNS, shapeData.element);
 
