@@ -285,28 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Get the container where the buttons will be appended
   const shapeItems = document.querySelector('.shape-items');
 
-  // Create and append the buttons
-  shapes.forEach(({ shape, label }) => {
-    const button = document.createElement('button');
-    button.classList.add('shape-btn');
-    button.dataset.shape = shape;
-
-    // Create the SVG element
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', '16');
-    svg.setAttribute('height', '16');
-    svg.setAttribute('viewBox', '0 0 10 10');
-    svg.setAttribute('style', 'fill: black;'); // Set the fill color to black
-    svg.innerHTML = shapesData[shape];
-
-    // Append SVG and label to button
-    button.appendChild(svg);
-    const span = document.createElement('span');
-    span.textContent = label;
-    button.appendChild(span);
-
-    shapeItems.appendChild(button);
-  });
+  createButtons(shapes,shapeItems)
 
   // Add event listeners to the buttons
   const shapeButtons = document.querySelectorAll('.shape-btn');
@@ -531,5 +510,29 @@ document.addEventListener('DOMContentLoaded', function () {
         rect1.top > rect2.bottom
       );
     }
+  }
+  async function createButtons (shapes, shapeItems) {
+      // Create and append the buttons
+    shapes.forEach(({ shape, label }) => {
+      const button = document.createElement('button');
+      button.classList.add('shape-btn');
+      button.dataset.shape = shape;
+
+      // Create the SVG element
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '16');
+      svg.setAttribute('height', '16');
+      svg.setAttribute('viewBox', '0 0 10 10');
+      svg.setAttribute('fill', selectedColor);
+      svg.innerHTML = shapesData[shape];
+
+      // Append SVG and label to button
+      button.appendChild(svg);
+      const span = document.createElement('span');
+      span.textContent = label;
+      button.appendChild(span);
+
+      shapeItems.appendChild(button);
+    });
   }
 });
