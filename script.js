@@ -291,7 +291,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const button = document.createElement('button');
     button.classList.add('shape-btn');
     button.dataset.shape = shape;
-    button.textContent = label;
+
+    // Create the SVG element
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '16');
+    svg.setAttribute('height', '16');
+    svg.setAttribute('viewBox', '0 0 10 10');
+    svg.setAttribute('style', 'fill: black;'); // Set the fill color to black
+    svg.innerHTML = shapesData[shape];
+
+    // Append SVG and label to button
+    button.appendChild(svg);
+    const span = document.createElement('span');
+    span.textContent = label;
+    button.appendChild(span);
+
     shapeItems.appendChild(button);
   });
 
