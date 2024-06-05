@@ -124,7 +124,6 @@ Use only the required attributes for the specific SVG element:
 }
 `;
 
-
 async function fetchAnswer(shape1, shape2) {
     const url = 'http://localhost:11434/api/generate';
     const headers = {
@@ -334,7 +333,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const avgRgb = rgb1.map((value, index) =>
       Math.round((value + rgb2[index]) / 2)
     )
-    const newColor = `rgb(${avgRgb.join(',')})`
+    const htmlColorName = getNearestColorCode(avgRgb)
+    const newColor = `rgb(${COLORS[htmlColorName].join(', ')})`
+    console.log(existingColors, newColor, colorExists(newColor));
 
     shape1.remove()
     shape2.remove()
@@ -372,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const newColorItem = document.createElement('div')
       newColorItem.setAttribute('class', 'grid-item')
       newColorItem.setAttribute('data-color', newColor)
-      newColorItem.textContent = `New Color ${existingColors.size - 5}`
+      newColorItem.textContent = htmlColorName
       newColorItem.style.backgroundColor = newColor
       newColorItem.style.color = getInverseColor(newColor)
       newColorItem.addEventListener('click', event => {
