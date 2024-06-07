@@ -1,20 +1,18 @@
 # infiniteshapes
 
 ## SETUP
-In the INFINITESHAPES folder, run a python http server to host the files on (this allows the user of *fetch*, which is not allowed on the purely static version)
-> python -m http.server 8000
-
-You can now navigate to
-http://localhost:8000/
-
-^ This is where the main page is now.
 
 In order to run it with Ollama - do the following:
 1. Install Ollama
 2. In a CMD, run "ollama run phi3:mini" to install phi3:mini
 3. After installation, exit ollama (ctrl-c)
-4. Run "ollama serve"
+4. Run "python3 infiniteShapes.py"
 5. The frontend should now be able to hit the local ollama backend - just run the website as normal
+
+You can now navigate to
+http://localhost:8000/
+
+^ This is where the main page is now.
 
 DEBUGGING
 1. Unfortunately, phi3:mini is kinda stupid sometimes - there are bugs.
