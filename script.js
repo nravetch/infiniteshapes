@@ -404,6 +404,8 @@ document.addEventListener('DOMContentLoaded', function () {
     newShape.style.left = `${combinedLeft}px`
     newShape.style.top = `${combinedTop}px`
 
+
+    const shapeItems = document.querySelector('.shape-items');
     createButtons(shapeItems)
 
     if (!colorExists(newColor)) {
@@ -427,10 +429,6 @@ document.addEventListener('DOMContentLoaded', function () {
       colorItems.appendChild(newColorItem)
 
       checkmarks = document.querySelectorAll('.checkmark')
-
-      const shapeItems = document.querySelector('.shape-items');
-
-      shapeItems.appendChild(newShapeButton);
     }
   }
 
