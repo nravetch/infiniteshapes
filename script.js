@@ -197,6 +197,81 @@ function nameFromCombinedKey(combinedKey) {
   return mixed.charAt(0).toUpperCase() + mixed.slice(1);
 }
 
+async function createButtons(shapeItems) {
+  // Wait for shapesData to be loaded
+  await waitForShapesData();
+
+  // Clear existing buttons
+  shapeItems.innerHTML = '';
+
+  // Create and append the buttons
+  shapes.forEach(({ shape, label }) => {
+    const button = document.createElement('button');
+    button.classList.add('shape-btn');
+    button.dataset.shape = shape;
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', '32');
+    svg.setAttribute('height', '32');
+    svg.setAttribute('viewBox', '0 0 64 64'); // Initial viewBox for initial rendering
+
+    const shapeInfo = shapesData[shape];
+    console.log("Shape Info:", shapeInfo);
+    const shapeElement = document.createElementNS(svgNS, shapeInfo.element);
+
+    Object.keys(shapeInfo.attributes).forEach(attr => {
+      shapeElement.setAttribute(attr, shapeInfo.attributes[attr]);
+    });
+
+    shapeElement.setAttribute('fill', selectedColor);
+    svg.appendChild(shapeElement);
+
+    // Append SVG to the DOM temporarily to calculate bounding box
+    document.body.appendChild(svg);
+    const bbox = shapeElement.getBBox();
+    document.body.removeChild(svg);
+
+    // Center the content in the viewBox
+    const padding = 10; // Optional padding around the shape
+    const viewBoxX = bbox.x - padding;
+    const viewBoxY = bbox.y - padding;
+    const viewBoxWidth = bbox.width + 2 * padding;
+    const viewBoxHeight = bbox.height + 2 * padding;
+
+    svg.setAttribute('viewBox', `${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`);
+
+    // Append SVG and label to button
+    button.appendChild(svg);
+    const span = document.createElement('span');
+    span.textContent = label;
+    button.appendChild(span);
+
+    shapeItems.appendChild(button);
+  });
+
+  // Add event listeners to the buttons
+  const shapeButtons = document.querySelectorAll('.shape-btn');
+  shapeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const shapeType = button.getAttribute('data-shape');
+      createShape(shapeType);
+    });
+  });
+}
+
+function updateShapeColors(selectedColor) {
+  // Update the fill color of all shapes
+  const shapeButtons = document.querySelectorAll('.shape-btn');
+  shapeButtons.forEach(button => {
+    const svg = button.querySelector('svg');
+    const shapeElement = svg.firstElementChild;
+    if (shapeElement) {
+      shapeElement.setAttribute('fill', selectedColor);
+    }
+  });
+}
+
 let shapesData = {};
 const combinedShapesCache = {};
 
@@ -270,31 +345,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     selectedColor = targetItem.getAttribute('data-color')
     console.log(`Selected color: ${selectedColor}`)
+    updateShapeColors(selectedColor);
   })
 
 
-  // Original Shapes
-  const shapes = [
-    { shape: 'square', label: 'Square' },
-    { shape: 'circle', label: 'Circle' },
-    { shape: 'ellipse', label: 'Ellipse' },
-    { shape: 'polygon', label: 'Star' },
-    { shape: 'path', label: 'Sine' }
-  ];
-
-  // Get the container where the buttons will be appended
-  const shapeItems = document.querySelector('.shape-items');
-
-  createButtons(shapes,shapeItems)
-
-  // Add event listeners to the buttons
-  const shapeButtons = document.querySelectorAll('.shape-btn');
-  shapeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const shapeType = button.getAttribute('data-shape');
-      createShape(shapeType);
-    });
-  });
+  // Create the buttons with the default color
+  const shapeItems = document.querySelector('.shape-items')
+  createButtons(shapeItems);
 
   async function combineShapes (shape1, shape2) {
     const rect1 = shape1.getBoundingClientRect()
@@ -371,18 +428,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const shapeItems = document.querySelector('.shape-items');
 
-      const newShapeButton = document.createElement('button');
-      newShapeButton.classList.add('shape-btn');
-      newShapeButton.dataset.shape = uniqueIdentifier;
-      newShapeButton.textContent = `New Shape ${existingColors.size - 5}`;
-
-      //comment this out if its wack
-      newShapeButton.textContent = nameFromCombinedKey(combinedKey);
-
-      newShapeButton.addEventListener('click', () => {
-        const shapeType = newShapeButton.getAttribute('data-shape');
-        createShape(shapeType);
-      });
+      createButtons(shapeItems)
 
       shapeItems.appendChild(newShapeButton);
     }
@@ -511,28 +557,74 @@ document.addEventListener('DOMContentLoaded', function () {
       );
     }
   }
-  async function createButtons (shapes, shapeItems) {
-      // Create and append the buttons
-    shapes.forEach(({ shape, label }) => {
+  async function createButtons(shapeItems) {
+    // Wait for shapesData to be loaded
+    await waitForShapesData();
+  
+    // Create and append the buttons
+    Object.keys(shapesData).forEach(shape => {
       const button = document.createElement('button');
       button.classList.add('shape-btn');
       button.dataset.shape = shape;
-
-      // Create the SVG element
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('width', '16');
-      svg.setAttribute('height', '16');
-      svg.setAttribute('viewBox', '0 0 10 10');
-      svg.setAttribute('fill', selectedColor);
-      svg.innerHTML = shapesData[shape];
-
+  
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(svgNS, 'svg');
+      svg.setAttribute('width', '32');
+      svg.setAttribute('height', '25');
+      svg.setAttribute('viewBox', '0 0 64 64'); // Initial viewBox for initial rendering
+  
+      const shapeInfo = shapesData[shape];
+      const shapeElement = document.createElementNS(svgNS, shapeInfo.element);
+  
+      Object.keys(shapeInfo.attributes).forEach(attr => {
+        shapeElement.setAttribute(attr, shapeInfo.attributes[attr]);
+      });
+  
+      shapeElement.setAttribute('fill', selectedColor);
+      svg.appendChild(shapeElement);
+  
+      // Append SVG to the DOM temporarily to calculate bounding box
+      document.body.appendChild(svg);
+      const bbox = shapeElement.getBBox();
+      document.body.removeChild(svg);
+  
+      // Center the content in the viewBox
+      const padding = 10; // Optional padding around the shape
+      const viewBoxX = bbox.x - padding;
+      const viewBoxY = bbox.y - padding;
+      const viewBoxWidth = bbox.width + 2 * padding;
+      const viewBoxHeight = bbox.height + 2 * padding;
+  
+      svg.setAttribute('viewBox', `${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`);
+  
       // Append SVG and label to button
       button.appendChild(svg);
       const span = document.createElement('span');
-      span.textContent = label;
+      span.textContent = shape;
       button.appendChild(span);
-
+  
       shapeItems.appendChild(button);
+    });
+    // Add event listeners to the buttons
+    const shapeButtons = document.querySelectorAll('.shape-btn');
+    shapeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const shapeType = button.getAttribute('data-shape');
+        createShape(shapeType);
+      });
+    });
+  }
+
+  function waitForShapesData() {
+    return new Promise((resolve, reject) => {
+      const checkShapesData = () => {
+        if (shapesData !== null && Object.keys(shapesData).length !== 0) {
+          resolve();
+        } else {
+          setTimeout(checkShapesData, 100); // Check again after 100ms
+        }
+      };
+      checkShapesData();
     });
   }
 });

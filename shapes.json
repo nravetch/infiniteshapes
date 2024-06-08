@@ -25,13 +25,13 @@
       "ry": "5"
     }
   },
-  "polygon": {
+  "star": {
     "element": "polygon",
     "attributes": {
       "points": "50 160 55 180 70 180 60 190 65 205 50 195 35 205 40 190 30 180 45 180"
     }
   },
-  "path": {
+  "sine": {
     "element": "path",
     "attributes": {
       "d": "M 20 230 Q 40 205 50 230 T 90 230"
