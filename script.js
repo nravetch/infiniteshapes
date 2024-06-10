@@ -197,69 +197,6 @@ function nameFromCombinedKey(combinedKey) {
   return mixed.charAt(0).toUpperCase() + mixed.slice(1);
 }
 
-async function createButtons(shapeItems) {
-  // Wait for shapesData to be loaded
-  await waitForShapesData();
-
-  // Clear existing buttons
-  shapeItems.innerHTML = '';
-
-  // Create and append the buttons
-  shapes.forEach(({ shape, label }) => {
-    const button = document.createElement('button');
-    button.classList.add('shape-btn');
-    button.dataset.shape = shape;
-
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('width', '32');
-    svg.setAttribute('height', '32');
-    svg.setAttribute('viewBox', '0 0 64 64'); // Initial viewBox for initial rendering
-
-    const shapeInfo = shapesData[shape];
-    console.log("Shape Info:", shapeInfo);
-    const shapeElement = document.createElementNS(svgNS, shapeInfo.element);
-
-    Object.keys(shapeInfo.attributes).forEach(attr => {
-      shapeElement.setAttribute(attr, shapeInfo.attributes[attr]);
-    });
-
-    shapeElement.setAttribute('fill', selectedColor);
-    svg.appendChild(shapeElement);
-
-    // Append SVG to the DOM temporarily to calculate bounding box
-    document.body.appendChild(svg);
-    const bbox = shapeElement.getBBox();
-    document.body.removeChild(svg);
-
-    // Center the content in the viewBox
-    const padding = 10; // Optional padding around the shape
-    const viewBoxX = bbox.x - padding;
-    const viewBoxY = bbox.y - padding;
-    const viewBoxWidth = bbox.width + 2 * padding;
-    const viewBoxHeight = bbox.height + 2 * padding;
-
-    svg.setAttribute('viewBox', `${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`);
-
-    // Append SVG and label to button
-    button.appendChild(svg);
-    const span = document.createElement('span');
-    span.textContent = label;
-    button.appendChild(span);
-
-    shapeItems.appendChild(button);
-  });
-
-  // Add event listeners to the buttons
-  const shapeButtons = document.querySelectorAll('.shape-btn');
-  shapeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const shapeType = button.getAttribute('data-shape');
-      createShape(shapeType);
-    });
-  });
-}
-
 function updateShapeColors(selectedColor) {
   // Update the fill color of all shapes
   const shapeButtons = document.querySelectorAll('.shape-btn');
@@ -555,11 +492,19 @@ document.addEventListener('DOMContentLoaded', function () {
       );
     }
   }
+
   async function createButtons(shapeItems) {
     // Wait for shapesData to be loaded
     await waitForShapesData();
   
-    // Create and append the buttons
+    // Clear out all the existing '.shape-btn' objects
+    const existingButtons = shapeItems.querySelectorAll('.shape-btn');
+    existingButtons.forEach(button => button.remove());
+  
+    // Clear the shapeItems container (this line can be optional as buttons are already removed)
+    shapeItems.innerHTML = '';
+  
+    // Create and append the new buttons
     Object.keys(shapesData).forEach(shape => {
       const button = document.createElement('button');
       button.classList.add('shape-btn');
@@ -603,7 +548,8 @@ document.addEventListener('DOMContentLoaded', function () {
   
       shapeItems.appendChild(button);
     });
-    // Add event listeners to the buttons
+  
+    // Add event listeners to the new buttons
     const shapeButtons = document.querySelectorAll('.shape-btn');
     shapeButtons.forEach(button => {
       button.addEventListener('click', () => {
@@ -611,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function () {
         createShape(shapeType);
       });
     });
-  }
+  }  
 
   function waitForShapesData() {
     return new Promise((resolve, reject) => {
