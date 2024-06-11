@@ -375,27 +375,42 @@ document.addEventListener('DOMContentLoaded', function () {
       return null;
     }
 
-    const svgNS = 'http://www.w3.org/2000/svg'
-    const smallShape = document.createElementNS(svgNS, 'svg')
-    smallShape.setAttribute('width', '200')
-    smallShape.setAttribute('height', '250')
-    smallShape.classList.add('small-shape')
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const smallShape = document.createElementNS(svgNS, 'svg');
+    smallShape.setAttribute('width', '200');
+    smallShape.setAttribute('height', '250');
+    smallShape.classList.add('small-shape');
     smallShape.setAttribute('data-shape-type', shapeType);
     
     const shapeInfo = shapesData[shapeType];
     const shapeElement = document.createElementNS(svgNS, shapeInfo.element);
-
+    
     Object.keys(shapeInfo.attributes).forEach(attr => {
       shapeElement.setAttribute(attr, shapeInfo.attributes[attr]);
     });
-
-    shapeElement.setAttribute('fill', selectedColor)
-    smallShape.appendChild(shapeElement)
     
-    setPositionAndDrag(smallShape)
-
-    document.querySelector('.main-content').appendChild(smallShape)
-    return smallShape
+    shapeElement.setAttribute('fill', selectedColor);
+    smallShape.appendChild(shapeElement);
+    
+    // Append SVG to the DOM temporarily to calculate bounding box
+    document.body.appendChild(smallShape);
+    const bbox = shapeElement.getBBox();
+    document.body.removeChild(smallShape);
+    
+    // Center the content in the viewBox
+    const padding = 10; // Optional padding around the shape
+    const viewBoxX = bbox.x - padding;
+    const viewBoxY = bbox.y - padding;
+    const viewBoxWidth = bbox.width + 2 * padding;
+    const viewBoxHeight = bbox.height + 2 * padding;
+    
+    smallShape.setAttribute('viewBox', `${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`);
+    
+    // Set position and enable drag functionality
+    setPositionAndDrag(smallShape);
+    
+    document.querySelector('.main-content').appendChild(smallShape);
+    return smallShape;    
   }
 
   function createShapeFromData(shapeData, uniqueIdentifier) {
